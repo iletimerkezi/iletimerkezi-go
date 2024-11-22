@@ -1,8 +1,7 @@
 package iletimerkezi
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/iletimerkezi/iletimerkezi-go/services"
 )
 
 type IletiMerkeziClient struct {
@@ -51,4 +50,28 @@ func WithDebug(debug bool) ClientOption {
 	return func(c *IletiMerkeziClient) {
 		c.debug = debug
 	}
+}
+
+func (c *IletiMerkeziClient) SMS() *services.SmsService {
+	return services.NewSmsService(c.httpClient, c.apiKey, c.apiHash, c.defaultSender)
+}
+
+func (c *IletiMerkeziClient) Reports() *services.ReportService {
+	return services.NewReportService(c.httpClient, c.apiKey, c.apiHash)
+}
+
+func (c *IletiMerkeziClient) Summary() *services.SummaryService {
+	return services.NewSummaryService(c.httpClient, c.apiKey, c.apiHash)
+}
+
+func (c *IletiMerkeziClient) Senders() *services.SenderService {
+	return services.NewSenderService(c.httpClient, c.apiKey, c.apiHash)
+}
+
+func (c *IletiMerkeziClient) Account() *services.AccountService {
+	return services.NewAccountService(c.httpClient, c.apiKey, c.apiHash)
+}
+
+func (c *IletiMerkeziClient) Webhook() *services.WebhookService {
+	return services.NewWebhookService()
 } 

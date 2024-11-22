@@ -3,7 +3,7 @@ package services_test
 import (
     "testing"
     "github.com/stretchr/testify/assert"
-    "github.com/yourusername/iletimerkezi-go/internal/testutil"
+    "github.com/iletimerkezi/iletimerkezi-go/internal/testutil"
 )
 
 func TestAccountService(t *testing.T) {

@@ -5,10 +5,12 @@ import (
     "log"
     "time"
     
-    "github.com/yourusername/iletimerkezi-go"
+    "github.com/iletimerkezi/iletimerkezi-go"
 )
 
 func main() {
+
+    fmt.Println("Starting...")
     // Create client with options
     client := iletimerkezi.NewClient(
         "your-api-key",
@@ -24,30 +26,30 @@ func main() {
     smsService.EnableIysConsent()
 
     // Example 2: Get Report
-    fmt.Println("\nGetting Report...")
-    reportService := client.Reports()
-    report, err := reportService.Get(12345, 1, 1000)
-    if err != nil {
-        log.Fatal("Report error:", err)
-    }
-    fmt.Printf("Order Status: %s\n", report.GetOrderStatus())
+    // fmt.Println("\nGetting Report...")
+    // reportService := client.Reports()
+    // report, err := reportService.Get(12345, 1, 1000)
+    // if err != nil {
+    //     log.Fatal("Report error:", err)
+    // }
+    // fmt.Printf("Order Status: %s\n", report.GetOrderStatus())
 
-    // Example 3: Get Summary
-    fmt.Println("\nGetting Summary...")
-    summaryService := client.Summary()
-    startDate := time.Now().AddDate(0, 0, -1)
-    endDate := time.Now()
+    // // Example 3: Get Summary
+    // fmt.Println("\nGetting Summary...")
+    // summaryService := client.Summary()
+    // startDate := time.Now().AddDate(0, 0, -1)
+    // endDate := time.Now()
     
-    summary, err := summaryService.List(startDate, endDate, 1)
-    if err != nil {
-        log.Fatal("Summary error:", err)
-    }
+    // summary, err := summaryService.List(startDate, endDate, 1)
+    // if err != nil {
+    //     log.Fatal("Summary error:", err)
+    // }
 
-    for summary.HasMorePages() {
-        fmt.Printf("Orders count: %d\n", len(summary.GetOrders()))
-        summary, err = summaryService.Next()
-        if err != nil {
-            log.Fatal("Next page error:", err)
-        }
-    }
+    // for summary.HasMorePages() {
+    //     fmt.Printf("Orders count: %d\n", len(summary.GetOrders()))
+    //     summary, err = summaryService.Next()
+    //     if err != nil {
+    //         log.Fatal("Next page error:", err)
+    //     }
+    // }
 } 

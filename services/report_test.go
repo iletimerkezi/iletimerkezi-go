@@ -4,7 +4,7 @@ import (
     "testing"
     "github.com/stretchr/testify/assert"
     "github.com/stretchr/testify/mock"
-    "github.com/yourusername/iletimerkezi-go/internal/testutil"
+    "github.com/iletimerkezi/iletimerkezi-go/internal/testutil"
 )
 
 func TestReportService(t *testing.T) {

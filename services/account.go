@@ -1,5 +1,9 @@
 package services
 
+import (
+    "github.com/iletimerkezi/iletimerkezi-go/services/responses"
+)
+
 type AccountService struct {
     client  HttpClient
     apiKey  string
@@ -14,7 +18,7 @@ func NewAccountService(client HttpClient, apiKey, apiHash string) *AccountServic
     }
 }
 
-func (s *AccountService) Balance() (*AccountResponse, error) {
+func (s *AccountService) Balance() (*responses.AccountResponse, error) {
     payload := map[string]interface{}{
         "request": map[string]interface{}{
             "authentication": map[string]string{
@@ -29,5 +33,5 @@ func (s *AccountService) Balance() (*AccountResponse, error) {
         return nil, err
     }
 
-    return NewAccountResponse(resp), nil
+    return responses.NewAccountResponse(resp), nil
 } 

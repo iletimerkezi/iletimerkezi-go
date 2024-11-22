@@ -1,33 +1,32 @@
 package responses
 
 type AccountResponse struct {
-    *BaseResponse
-    amount string
-    sms    string
+    response *Response
 }
 
 func NewAccountResponse(resp *Response) *AccountResponse {
-    base := NewBaseResponse(resp)
-    r := &AccountResponse{
-        BaseResponse: base,
+    return &AccountResponse{
+        response: resp,
     }
-
-    if balance, ok := r.Data["balance"].(map[string]interface{}); ok {
-        if amount, ok := balance["amount"].(string); ok {
-            r.amount = amount
-        }
-        if sms, ok := balance["sms"].(string); ok {
-            r.sms = sms
-        }
-    }
-
-    return r
 }
 
-func (r *AccountResponse) Amount() string {
-    return r.amount
+func (r *AccountResponse) Ok() bool {
+    if status, ok := r.response.Body["response"].(map[string]interface{})["status"].(map[string]interface{}); ok {
+        return status["message"] == "Success"
+    }
+    return false
 }
 
-func (r *AccountResponse) Credits() string {
-    return r.sms
+func (r *AccountResponse) GetBalance() string {
+    if balance, ok := r.response.Body["response"].(map[string]interface{})["balance"].(map[string]interface{}); ok {
+        return balance["amount"].(string)
+    }
+    return "0"
+}
+
+func (r *AccountResponse) GetSmsCount() string {
+    if balance, ok := r.response.Body["response"].(map[string]interface{})["balance"].(map[string]interface{}); ok {
+        return balance["sms"].(string)
+    }
+    return "0"
 } 

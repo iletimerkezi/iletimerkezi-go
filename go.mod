@@ -1,4 +1,4 @@
-module github.com/yourusername/iletimerkezi-go
+module github.com/iletimerkezi/iletimerkezi-go
 
 go 1.23.3
 

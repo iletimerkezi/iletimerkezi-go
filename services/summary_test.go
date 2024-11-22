@@ -4,7 +4,7 @@ import (
     "testing"
     "time"
     "github.com/stretchr/testify/assert"
-    "github.com/yourusername/iletimerkezi-go/internal/testutil"
+    "github.com/iletimerkezi/iletimerkezi-go/internal/testutil"
 )
 
 func TestSummaryService(t *testing.T) {
