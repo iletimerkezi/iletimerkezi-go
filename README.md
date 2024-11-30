@@ -33,13 +33,13 @@ client := iletimerkezi.NewClient("API_KEY", "API_HASH", iletimerkezi.WithDebug(t
 
 ```go
 // Tek numaraya SMS gönderme
-resp, err := client.Sms().Send("5551234567", "Test mesajı")
+resp, err := client.Sms().Send("555123xxxx", "Test mesajı")
 if err != nil {
     log.Fatal(err)
 }
 
 // Birden fazla numaraya SMS gönderme
-numbers := []string{"5551234567", "5557654321"}
+numbers := []string{"555123xxxx", "555765xxxx"}
 resp, err := client.Sms().Send(numbers, "Toplu test mesajı")
 
 // İleri tarihli SMS gönderme
@@ -100,13 +100,13 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 ```go
 // Numarayı kara listeye ekleme
-resp, err := client.Blacklist().Add("5551234567")
+resp, err := client.Blacklist().Add("555123xxxx")
 
 // Kara listeden numara silme
-resp, err := client.Blacklist().Delete("5551234567")
+resp, err := client.Blacklist().Delete("555123xxxx")
 
 // Kara liste sorgulama
-resp, err := client.Blacklist().Check("5551234567")
+resp, err := client.Blacklist().Check("555123xxxx")
 ```
 
 ### Debug Bilgileri
@@ -114,7 +114,7 @@ resp, err := client.Blacklist().Check("5551234567")
 ```go
 // Son request/response bilgilerini görüntüleme
 client.EnableDebug()
-resp, _ := client.Sms().Send("5551234567", "Test mesajı")
+resp, _ := client.Sms().Send("555123xxxx", "Test mesajı")
 fmt.Println(client.Debug())
 ```
 
@@ -136,7 +136,7 @@ fmt.Println(client.Debug())
 SDK, API yanıtlarını ve hataları Go'nun standart hata yönetimi yaklaşımı ile ele alır:
 
 ```go
-resp, err := client.Sms().Send("5551234567", "Test mesajı")
+resp, err := client.Sms().Send("555123xxxx", "Test mesajı")
 if err != nil {
     log.Fatal("SMS gönderilemedi:", err)
 }
