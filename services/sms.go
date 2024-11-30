@@ -2,6 +2,12 @@ package services
 
 import (
     "time"
+    "github.com/iletimerkezi/iletimerkezi-go/responses"
+)
+
+const (
+    IysListBireysel = "BIREYSEL"
+    IysListTacir    = "TACIR"
 )
 
 type SmsService struct {
@@ -9,8 +15,8 @@ type SmsService struct {
     apiKey      string
     apiHash     string
     sender      string
-    sendTime    string
-    iysEnabled  bool
+    schedule    string
+    iys         string
     iysList     string
 }
 
@@ -20,45 +26,54 @@ func NewSmsService(client HttpClient, apiKey, apiHash, sender string) *SmsServic
         apiKey:     apiKey,
         apiHash:    apiHash,
         sender:     sender,
-        iysEnabled: true,
-        iysList:    "BIREYSEL",
+		schedule:   "",
+        iys:        "1",
+        iysList:    IysListBireysel,
     }
 }
 
 func (s *SmsService) Schedule(t time.Time) *SmsService {
-    s.sendTime = t.Format("2006-01-02 15:04:05")
+    s.schedule = t.Format("02/01/2006 15:04")
     return s
 }
 
 func (s *SmsService) EnableIysConsent() *SmsService {
-    s.iysEnabled = true
+    s.iys = "1"
     return s
 }
 
 func (s *SmsService) DisableIysConsent() *SmsService {
-    s.iysEnabled = false
+    s.iys = "0"
     return s
 }
 
 func (s *SmsService) SetIysList(list string) *SmsService {
+    if list != IysListBireysel && list != IysListTacir {
+        return s
+    }
     s.iysList = list
     return s
 }
 
-func (s *SmsService) Send(recipients interface{}, message string) (*SmsResponse, error) {
-    payload := map[string]interface{}{
+func (s *SmsService) Send(recipients interface{}, message string, sender string) (*responses.SmsResponse, error) {
+    
+	if sender != "" {
+		s.sender = sender
+	}
+
+	payload := map[string]interface{}{
         "request": map[string]interface{}{
             "authentication": map[string]string{
                 "key":  s.apiKey,
                 "hash": s.apiHash,
             },
-            "order": map[string]interface{}{
-                "sender":       s.sender,
-                "sendDateTime": s.sendTime,
-                "iys":         s.iysEnabled,
-                "iysList":     s.iysList,
-                "message":     s.buildMessages(recipients, message),
-            },
+			"order": map[string]interface{}{
+				"sender": s.sender,
+				"sendDateTime": s.schedule,
+				"iys": s.iys,
+				"iysList": s.iysList,
+				"message": s.buildMessages(recipients, message),
+			},
         },
     }
 
@@ -67,10 +82,10 @@ func (s *SmsService) Send(recipients interface{}, message string) (*SmsResponse,
         return nil, err
     }
 
-    return NewSmsResponse(resp), nil
+    return responses.NewSmsResponse(resp), nil
 }
 
-func (s *SmsService) Cancel(orderID string) (*SmsResponse, error) {
+func (s *SmsService) Cancel(orderID string) (*responses.SmsResponse, error) {
     payload := map[string]interface{}{
         "request": map[string]interface{}{
             "authentication": map[string]string{
@@ -88,7 +103,7 @@ func (s *SmsService) Cancel(orderID string) (*SmsResponse, error) {
         return nil, err
     }
 
-    return NewSmsResponse(resp), nil
+    return responses.NewSmsResponse(resp), nil
 }
 
 func (s *SmsService) buildMessages(recipients interface{}, message string) interface{} {

@@ -1,5 +1,9 @@
 package services
 
+import (
+    "github.com/iletimerkezi/iletimerkezi-go/responses"
+)
+
 type SenderService struct {
     client  HttpClient
     apiKey  string
@@ -14,7 +18,7 @@ func NewSenderService(client HttpClient, apiKey, apiHash string) *SenderService 
     }
 }
 
-func (s *SenderService) List() (*SenderResponse, error) {
+func (s *SenderService) List() (*responses.SenderResponse, error) {
     payload := map[string]interface{}{
         "request": map[string]interface{}{
             "authentication": map[string]string{
@@ -29,5 +33,5 @@ func (s *SenderService) List() (*SenderResponse, error) {
         return nil, err
     }
 
-    return NewSenderResponse(resp), nil
+    return responses.NewSenderResponse(resp), nil
 } 

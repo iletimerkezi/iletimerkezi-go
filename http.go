@@ -6,55 +6,45 @@ import (
     "fmt"
     "io"
     "net/http"
+    "github.com/iletimerkezi/iletimerkezi-go/responses"
 )
 
 type HttpClient interface {
-    Post(url string, payload interface{}) (*Response, error)
-    GetLastResponse() *Response
+    Post(url string, payload interface{}) (*responses.Response, error)
+    GetLastResponse() *responses.Response
+    GetLastPayload() []byte
 }
 
 type defaultHttpClient struct {
-    client        *http.Client
-    lastResponse  *Response
-    lastPayload   []byte
-    baseURL       string
-    userAgent     string
+    client       *http.Client
+    lastResponse *responses.Response
+    lastPayload  []byte
+    baseURL      string
 }
 
-type Response struct {
-    StatusCode int
-    Body       map[string]interface{}
-    RawBody    []byte
-}
-
-func NewDefaultHttpClient() HttpClient {
+func NewHttpClient() HttpClient {
     return &defaultHttpClient{
-        client:    &http.Client{},
-        baseURL:   "https://api.iletimerkezi.com/v1/",
-        userAgent: fmt.Sprintf("IletiMerkezi-Go/%s", Version()),
+        client:  &http.Client{},
+        baseURL: "https://api.iletimerkezi.com/v1/",
     }
 }
 
-func (c *defaultHttpClient) Post(url string, payload interface{}) (*Response, error) {
+func (c *defaultHttpClient) Post(url string, payload interface{}) (*responses.Response, error) {
     jsonData, err := json.Marshal(payload)
     if err != nil {
         return nil, fmt.Errorf("failed to marshal payload: %w", err)
     }
-
     c.lastPayload = jsonData
-    fullURL := c.baseURL + url
 
-    req, err := http.NewRequest("POST", fullURL, bytes.NewBuffer(jsonData))
+    req, err := http.NewRequest("POST", c.baseURL+url, bytes.NewBuffer(jsonData))
     if err != nil {
         return nil, fmt.Errorf("failed to create request: %w", err)
     }
-
     req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("User-Agent", c.userAgent)
 
     resp, err := c.client.Do(req)
     if err != nil {
-        return nil, fmt.Errorf("request failed: %w", err)
+        return nil, fmt.Errorf("failed to send request: %w", err)
     }
     defer resp.Body.Close()
 
@@ -63,21 +53,24 @@ func (c *defaultHttpClient) Post(url string, payload interface{}) (*Response, er
         return nil, fmt.Errorf("failed to read response body: %w", err)
     }
 
-    var result map[string]interface{}
-    if err := json.Unmarshal(body, &result); err != nil {
-        return nil, fmt.Errorf("failed to parse response: %w", err)
+    var responseBody map[string]interface{}
+    if err := json.Unmarshal(body, &responseBody); err != nil {
+        return nil, fmt.Errorf("failed to parse response body: %w", err)
     }
 
-    response := &Response{
+    response := &responses.Response{
         StatusCode: resp.StatusCode,
-        Body:       result,
-        RawBody:    body,
+        Body:      responseBody,
     }
 
     c.lastResponse = response
     return response, nil
 }
 
-func (c *defaultHttpClient) GetLastResponse() *Response {
+func (c *defaultHttpClient) GetLastResponse() *responses.Response {
     return c.lastResponse
+}
+
+func (c *defaultHttpClient) GetLastPayload() []byte {
+    return c.lastPayload
 } 

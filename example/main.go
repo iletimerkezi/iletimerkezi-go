@@ -3,53 +3,69 @@ package main
 import (
     "fmt"
     "log"
-    "time"
-    
+    // "time"
     "github.com/iletimerkezi/iletimerkezi-go"
 )
 
 func main() {
-
-    fmt.Println("Starting...")
-    // Create client with options
+    // Client oluşturma
     client := iletimerkezi.NewClient(
-        "your-api-key",
-        "your-api-hash",
-        iletimerkezi.WithDefaultSender("eMarka"),
-        iletimerkezi.WithDebug(true),
+        "API_KEY",
+        "API_HASH",
     )
 
-    // Example 1: Send SMS
-    fmt.Println("Sending SMS...")
-    smsService := client.SMS()
-    smsService.Schedule(time.Now().Add(time.Hour))
-    smsService.EnableIysConsent()
+    client.SetDefaultSender("SENDER")
 
-    // Example 2: Get Report
-    // fmt.Println("\nGetting Report...")
-    // reportService := client.Reports()
-    // report, err := reportService.Get(12345, 1, 1000)
-    // if err != nil {
-    //     log.Fatal("Report error:", err)
-    // }
-    // fmt.Printf("Order Status: %s\n", report.GetOrderStatus())
+    // SMS Gönderme örneği
+    smsResp, err := client.Sms().Send("5551234567", "Test mesajı", "")
+    if err != nil {
+        log.Fatal("SMS gönderme hatası:", err)
+    }
 
-    // // Example 3: Get Summary
-    // fmt.Println("\nGetting Summary...")
-    // summaryService := client.Summary()
-    // startDate := time.Now().AddDate(0, 0, -1)
-    // endDate := time.Now()
+    fmt.Println(smsResp)
+    fmt.Println("\nDebug Bilgileri:")
+    fmt.Println(client.Debug())
+
+    /*
+    if !smsResp.Ok() {
+        log.Printf("API Hatası: %s (Kod: %d)\n", smsResp.GetMessage(), smsResp.GetStatusCode())
+        return
+    }
+
+    fmt.Printf("SMS başarıyla gönderildi. Order ID: %s\n", smsResp.OrderID)
+
+    // Rapor sorgulama örneği
+    startDate := time.Now().AddDate(0, 0, -7) // Son 7 gün
+    endDate := time.Now()
     
-    // summary, err := summaryService.List(startDate, endDate, 1)
-    // if err != nil {
-    //     log.Fatal("Summary error:", err)
-    // }
+    summaryResp, err := client.Summary().Get(&startDate, &endDate, 1)
+    if err != nil {
+        log.Fatal("Rapor sorgulama hatası:", err)
+    }
 
-    // for summary.HasMorePages() {
-    //     fmt.Printf("Orders count: %d\n", len(summary.GetOrders()))
-    //     summary, err = summaryService.Next()
-    //     if err != nil {
-    //         log.Fatal("Next page error:", err)
-    //     }
-    // }
-} 
+    if !summaryResp.Ok() {
+        log.Printf("API Hatası: %s (Kod: %d)\n", summaryResp.GetMessage(), summaryResp.GetStatusCode())
+        return
+    }
+
+    fmt.Printf("Toplam SMS sayısı: %d\n", summaryResp.GetCount())
+
+    // Bakiye sorgulama örneği
+    accountResp, err := client.Account().Balance()
+    if err != nil {
+        log.Fatal("Bakiye sorgulama hatası:", err)
+    }
+
+    if !accountResp.Ok() {
+        log.Printf("API Hatası: %s (Kod: %d)\n", accountResp.GetMessage(), accountResp.GetStatusCode())
+        return
+    }
+
+    fmt.Printf("Bakiye: %.2f TL\n", accountResp.Amount)
+    fmt.Printf("Kalan SMS: %d\n", accountResp.Credits)
+
+    // Debug bilgilerini görüntüleme
+    fmt.Println("\nDebug Bilgileri:")
+    fmt.Println(client.Debug())
+    */
+}

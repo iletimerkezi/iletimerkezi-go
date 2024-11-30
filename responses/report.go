@@ -2,14 +2,23 @@ package responses
 
 type ReportResponse struct {
     *BaseResponse
-    messages []Message
-    position int
+    OrderID      int
+    OrderStatus  string
+    StatusCode   int
+    Total       int
+    Delivered   int
+    Undelivered int
+    Waiting     int
+    SubmitAt    string
+    SendAt      string
+    Sender      string
+    Messages    []Message
 }
 
 type Message struct {
-    Number string
-    Status string
-    Code   int
+    Number     string
+    Status     string
+    StatusCode int
 }
 
 const (
@@ -23,16 +32,16 @@ const (
 )
 
 var (
-    orderStatusMap = map[string]string{
-        "113": OrderStatusSending,
-        "114": OrderStatusCompleted,
-        "115": OrderStatusCanceled,
+    orderStatusMap = map[int]string{
+        113: OrderStatusSending,
+        114: OrderStatusCompleted,
+        115: OrderStatusCanceled,
     }
 
-    messageStatusMap = map[string]string{
-        "110": MessageStatusWaiting,
-        "111": MessageStatusDelivered,
-        "112": MessageStatusUndelivered,
+    messageStatusMap = map[int]string{
+        110: MessageStatusWaiting,
+        111: MessageStatusDelivered,
+        112: MessageStatusUndelivered,
     }
 )
 
@@ -41,60 +50,66 @@ func NewReportResponse(resp *Response) *ReportResponse {
     r := &ReportResponse{
         BaseResponse: base,
     }
-    r.parseMessages()
+    r.parseOrderData()
     return r
 }
 
-func (r *ReportResponse) parseMessages() {
+func (r *ReportResponse) parseOrderData() {
     if order, ok := r.Data["order"].(map[string]interface{}); ok {
+        // Parse order ID
+        if id, ok := order["id"].(int); ok {
+            r.OrderID = id
+        }
+
+        // Parse status
+        if status, ok := order["status"].(int); ok {
+            r.StatusCode = status
+            r.OrderStatus = orderStatusMap[r.StatusCode]
+        }
+
+        // Parse counts
+        if total, ok := order["total"].(int); ok {
+            r.Total = total
+        }
+        if delivered, ok := order["delivered"].(int); ok {
+            r.Delivered = delivered
+        }
+        if undelivered, ok := order["undelivered"].(int); ok {
+            r.Undelivered = undelivered
+        }
+        if waiting, ok := order["waiting"].(int); ok {
+            r.Waiting = waiting
+        }
+
+        // Parse dates and sender
+        if submitAt, ok := order["submitAt"].(string); ok {
+            r.SubmitAt = submitAt
+        }
+        if sendAt, ok := order["sendAt"].(string); ok {
+            r.SendAt = sendAt
+        }
+        if sender, ok := order["sender"].(string); ok {
+            r.Sender = sender
+        }
+
+        // Parse messages
         if msgs, ok := order["message"].([]interface{}); ok {
-            r.messages = make([]Message, len(msgs))
-            for i, msg := range msgs {
+            r.Messages = make([]Message, 0, len(msgs))
+            for _, msg := range msgs {
                 if m, ok := msg.(map[string]interface{}); ok {
-                    r.messages[i] = Message{
-                        Number: m["number"].(string),
-                        Status: messageStatusMap[m["status"].(string)],
-                        Code:   int(m["status"].(float64)),
+                    var msgStatus int
+                    if status, ok := m["status"].(int); ok {
+                        msgStatus = status
                     }
+
+                    message := Message{
+                        Number:     m["number"].(string),
+                        Status:     messageStatusMap[msgStatus],
+                        StatusCode: msgStatus,
+                    }
+                    r.Messages = append(r.Messages, message)
                 }
             }
         }
     }
 }
-
-func (r *ReportResponse) GetOrderID() string {
-    if order, ok := r.Data["order"].(map[string]interface{}); ok {
-        return order["id"].(string)
-    }
-    return ""
-}
-
-func (r *ReportResponse) GetOrderStatus() string {
-    if order, ok := r.Data["order"].(map[string]interface{}); ok {
-        if status, ok := order["status"].(string); ok {
-            return orderStatusMap[status]
-        }
-    }
-    return ""
-}
-
-func (r *ReportResponse) GetMessages() []Message {
-    return r.messages
-}
-
-// Iterator implementation
-func (r *ReportResponse) Next() bool {
-    r.position++
-    return r.position < len(r.messages)
-}
-
-func (r *ReportResponse) Current() *Message {
-    if r.position >= len(r.messages) {
-        return nil
-    }
-    return &r.messages[r.position]
-}
-
-func (r *ReportResponse) Reset() {
-    r.position = 0
-} 

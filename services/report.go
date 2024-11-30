@@ -2,13 +2,14 @@ package services
 
 import (
 	"fmt"
+	"github.com/iletimerkezi/iletimerkezi-go/responses"
 )
 
 type ReportService struct {
 	client      HttpClient
 	apiKey      string
 	apiHash     string
-	lastOrderID string
+	lastOrderID int
 	lastPage    int
 }
 
@@ -20,7 +21,7 @@ func NewReportService(client HttpClient, apiKey, apiHash string) *ReportService 
 	}
 }
 
-func (s *ReportService) Get(orderID string, page int, rowCount int) (*ReportResponse, error) {
+func (s *ReportService) Get(orderID, page int, rowCount int) (*responses.ReportResponse, error) {
 	s.lastOrderID = orderID
 	s.lastPage = page
 
@@ -43,11 +44,11 @@ func (s *ReportService) Get(orderID string, page int, rowCount int) (*ReportResp
 		return nil, err
 	}
 
-	return NewReportResponse(resp), nil
+	return responses.NewReportResponse(resp), nil
 }
 
-func (s *ReportService) Next() (*ReportResponse, error) {
-	if s.lastOrderID == "" || s.lastPage == 0 {
+func (s *ReportService) Next() (*responses.ReportResponse, error) {
+	if s.lastPage == 0 {
 		return nil, fmt.Errorf("no previous report request found. Call Get() first")
 	}
 

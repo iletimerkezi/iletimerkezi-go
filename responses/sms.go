@@ -2,7 +2,7 @@ package responses
 
 type SmsResponse struct {
     *BaseResponse
-    orderID string
+    OrderID int
 }
 
 func NewSmsResponse(resp *Response) *SmsResponse {
@@ -13,14 +13,10 @@ func NewSmsResponse(resp *Response) *SmsResponse {
     }
     
     if order, ok := r.Data["order"].(map[string]interface{}); ok {
-        if id, ok := order["id"].(string); ok {
-            r.orderID = id
+        if id, ok := order["id"].(int); ok {
+            r.OrderID = id
         }
     }
     
     return r
 }
-
-func (r *SmsResponse) GetOrderID() string {
-    return r.orderID
-} 

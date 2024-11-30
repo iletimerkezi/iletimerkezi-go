@@ -1,7 +1,7 @@
 package services
 
 import (
-    "github.com/iletimerkezi/iletimerkezi-go/services/responses"
+    "github.com/iletimerkezi/iletimerkezi-go/responses"
 )
 
 type AccountService struct {

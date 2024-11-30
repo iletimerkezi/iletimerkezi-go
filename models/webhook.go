@@ -1,60 +1,53 @@
 package models
 
 type WebhookReport struct {
-    id       string
-    packetID string
-    status   string
-    to       string
-    body     string
+    ID       int    `json:"id"`
+    PacketID int    `json:"packet_id"`
+    Status   string `json:"status"`
+    To       string `json:"to"`
+    Body     string `json:"body"`
 }
 
 func NewWebhookReport(data map[string]interface{}) *WebhookReport {
     report := &WebhookReport{}
-    if r, ok := data["report"].(map[string]interface{}); ok {
-        report.id = getString(r, "id")
-        report.packetID = getString(r, "packet_id")
-        report.status = getString(r, "status")
-        report.to = getString(r, "to")
-        report.body = getString(r, "body")
+    
+    if reportData, ok := data["report"].(map[string]interface{}); ok {
+        // Parse ID
+        if id, ok := reportData["id"].(float64); ok {
+            report.ID = int(id)
+        }
+        
+        // Parse PacketID
+        if packetID, ok := reportData["packet_id"].(float64); ok {
+            report.PacketID = int(packetID)
+        }
+        
+        // Parse string fields
+        if status, ok := reportData["status"].(string); ok {
+            report.Status = status
+        }
+        
+        if to, ok := reportData["to"].(string); ok {
+            report.To = to
+        }
+        
+        if body, ok := reportData["body"].(string); ok {
+            report.Body = body
+        }
     }
+
     return report
 }
 
-func getString(m map[string]interface{}, key string) string {
-    if val, ok := m[key].(string); ok {
-        return val
-    }
-    return ""
-}
-
-func (r *WebhookReport) GetID() string {
-    return r.id
-}
-
-func (r *WebhookReport) GetPacketID() string {
-    return r.packetID
-}
-
-func (r *WebhookReport) GetStatus() string {
-    return r.status
-}
-
-func (r *WebhookReport) GetTo() string {
-    return r.to
-}
-
-func (r *WebhookReport) GetBody() string {
-    return r.body
-}
-
+// Status check methods
 func (r *WebhookReport) IsDelivered() bool {
-    return r.status == "delivered"
+    return r.Status == "delivered"
 }
 
 func (r *WebhookReport) IsAccepted() bool {
-    return r.status == "accepted"
+    return r.Status == "accepted"
 }
 
 func (r *WebhookReport) IsUndelivered() bool {
-    return r.status == "undelivered"
-} 
+    return r.Status == "undelivered"
+}

@@ -2,6 +2,7 @@ package services
 
 import (
 	"time"
+	"github.com/iletimerkezi/iletimerkezi-go/responses"
 )
 
 type BlacklistService struct {
@@ -18,7 +19,14 @@ func NewBlacklistService(client HttpClient, apiKey, apiHash string) *BlacklistSe
 	}
 }
 
-func (s *BlacklistService) List(startDate, endDate *time.Time, page int, rowCount int) (*BlacklistResponse, error) {
+func (s *BlacklistService) List(startDate, endDate *time.Time, page int, rowCount int) (*responses.BlacklistResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if rowCount < 1 {
+		rowCount = 100
+	}
+	
 	payload := map[string]interface{}{
 		"request": map[string]interface{}{
 			"authentication": map[string]string{
@@ -48,5 +56,47 @@ func (s *BlacklistService) List(startDate, endDate *time.Time, page int, rowCoun
 		return nil, err
 	}
 
-	return NewBlacklistResponse(resp), nil
+	return responses.NewBlacklistResponse(resp, page, rowCount), nil
+}
+
+func (s *BlacklistService) Add(numbers []string) (*responses.BlacklistCrudResponse, error) {
+	payload := map[string]interface{}{
+		"request": map[string]interface{}{
+			"authentication": map[string]string{
+				"key":  s.apiKey,
+				"hash": s.apiHash,
+			},
+			"blacklist": map[string]interface{}{
+				"number": numbers[0],
+			},
+		},
+	}
+
+	resp, err := s.client.Post("add-blacklist/json", payload)
+	if err != nil {
+		return nil, err
+	}
+
+	return responses.NewBlacklistCrudResponse(resp), nil
+}
+
+func (s *BlacklistService) Delete(numbers []string) (*responses.BlacklistCrudResponse, error) {
+	payload := map[string]interface{}{
+		"request": map[string]interface{}{
+			"authentication": map[string]string{
+				"key":  s.apiKey,
+				"hash": s.apiHash,
+			},
+			"blacklist": map[string]interface{}{
+				"number": numbers[0],
+			},
+		},
+	}
+
+	resp, err := s.client.Post("delete-blacklist/json", payload)
+	if err != nil {
+		return nil, err
+	}
+
+	return responses.NewBlacklistCrudResponse(resp), nil
 } 
